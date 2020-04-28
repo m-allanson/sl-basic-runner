@@ -1,9 +1,13 @@
 const LazyResult = require("postcss/lib/lazy-result");
 const postcss = require("postcss");
-const reportUnknownRuleNames = require("stylelint/lib/reportUnknownRuleNames");
-const getOsEol = require("stylelint/lib/utils/getOsEol");
-const rulesOrder = require("stylelint/lib/rules");
 const get = require("lodash/get");
+
+const getOsEol = require("stylelint/lib/utils/getOsEol");
+const normalizeRuleSettings = require("stylelint/lib/normalizeRuleSettings");
+const reportUnknownRuleNames = require("stylelint/lib/reportUnknownRuleNames");
+const rulesOrder = require("stylelint/lib/rules");
+
+const allRules = require("./rules.js");
 
 const postcssProcessor = postcss();
 
@@ -13,13 +17,23 @@ function lint(text, config) {
       parse: postcss.parse,
       stringify: postcss.stringify,
     },
+    from: undefined,
   };
 
   const lazyResult = new LazyResult(postcssProcessor, text, postcssOptions);
 
-  const result = lintPostcssResult(lazyResult, config);
+  const normalizedConfig = normalizeAllRuleSettings(config);
 
-  return result;
+  return lintPostcssResult(lazyResult, normalizedConfig);
+}
+
+// Run normalizeRuleSettings on all rules in the config
+function normalizeAllRuleSettings(config) {
+  let normalizedRules = {};
+  Object.entries(config.rules).forEach(([ruleName, ruleSettings]) => {
+    normalizedRules[ruleName] = normalizeRuleSettings(ruleSettings, ruleName);
+  });
+  return { ...config, rules: normalizedRules };
 }
 
 /**
@@ -33,6 +47,10 @@ function lintPostcssResult(postcssResult, config) {
   postcssResult.stylelint.customMessages = {};
   postcssResult.stylelint.stylelintError = false;
   postcssResult.stylelint.quiet = config.quiet;
+  // TODO: should this do something?
+  postcssResult.warn = (message, properties) => {
+    // console.log(message, properties);
+  };
 
   /** @type {string} */
   let newline;
@@ -76,15 +94,13 @@ function lintPostcssResult(postcssResult, config) {
 
   rules.forEach((ruleName) => {
     const ruleFunction =
-      rulesOrder[ruleName] || get(config, ["pluginFunction", ruleName]);
+      allRules[ruleName] || get(config, ["pluginFunction", ruleName]);
 
     if (ruleFunction === undefined) {
       performRules.push(
         Promise.all(
-          postcssRoots.map(
-            (postcssRoot) => {}
-            // TODO: get this working again
-            // reportUnknownRuleNames(ruleName, postcssRoot, postcssResult)
+          postcssRoots.map((postcssRoot) =>
+            reportUnknownRuleNames(ruleName, postcssRoot, postcssResult)
           )
         )
       );
@@ -124,7 +140,7 @@ function lintPostcssResult(postcssResult, config) {
     );
   });
 
-  return Promise.all(performRules);
+  return Promise.all(performRules).then(() => postcssResult);
 }
 
 module.exports = lint;
