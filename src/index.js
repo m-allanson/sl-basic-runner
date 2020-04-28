@@ -49,7 +49,7 @@ function lintPostcssResult(postcssResult, config) {
   postcssResult.stylelint.quiet = config.quiet;
   // TODO: should this do something?
   postcssResult.warn = (message, properties) => {
-    // console.log(message, properties);
+    console.log(message, properties);
   };
 
   /** @type {string} */
