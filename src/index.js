@@ -12,6 +12,7 @@ const allRules = require("./rules.js");
 const postcssProcessor = postcss();
 
 function lint(text, config) {
+async function lint(text, config) {
   const postcssOptions = {
     syntax: {
       parse: postcss.parse,
@@ -20,7 +21,12 @@ function lint(text, config) {
     from: undefined,
   };
 
-  const lazyResult = new LazyResult(postcssProcessor, text, postcssOptions);
+  // TODO: why create a LazyResult here? Why not use postcss.process()?
+  const lazyResult = await new LazyResult(
+    postcssProcessor,
+    text,
+    postcssOptions
+  );
 
   const normalizedConfig = normalizeAllRuleSettings(config);
 
@@ -47,10 +53,6 @@ function lintPostcssResult(postcssResult, config) {
   postcssResult.stylelint.customMessages = {};
   postcssResult.stylelint.stylelintError = false;
   postcssResult.stylelint.quiet = config.quiet;
-  // TODO: should this do something?
-  postcssResult.warn = (message, properties) => {
-    console.log(message, properties);
-  };
 
   /** @type {string} */
   let newline;
