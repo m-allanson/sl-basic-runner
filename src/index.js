@@ -11,7 +11,25 @@ const allRules = require("./rules.js");
 
 const postcssProcessor = postcss();
 
-function lint(text, config) {
+// TODO:
+// enable fix?
+// enable plugins?
+// enable disable ranges?
+// use types from stylelint
+// refactor stylelint internals to enable pulling more stylelint code in, and writing less custom code here?
+// how closely to align with the existing API? e.g. make use of JSON formatter
+
+/**
+ *
+ *
+ * Layers of stylelint
+ *
+ * host environment (cli, node module, fs etc) ? how does the postcss plugin work
+ * stylelint layer
+ * postcss layer
+ *
+ */
+
 async function lint(text, config) {
   const postcssOptions = {
     syntax: {
