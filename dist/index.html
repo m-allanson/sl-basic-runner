@@ -1,6 +1,47 @@
 <html>
-	<head>
-		<script src="./browser.js"></script>
-	</head>
-	<body><h1>hellooo</h1></hello></body>
+  <head>
+    <script src="./browser.js"></script>
+  </head>
+  <body>
+    <h1>stylelint</h1>
+    <h2>code</h2>
+    <textarea id="code" style="width: 100%; height: 200px;">
+      a {color: #FFF; }
+	</textarea
+    >
+    <h2>config</h2>
+    <textarea id="config" style="width: 100%; height: 200px;">
+{
+	"rules": {
+		"color-hex-length": "long",
+		"at-rule-no-vendor-prefix": true
+	}
+}
+    </textarea>
+    <h2>results</h2>
+    <code id="results" style="white-space: pre;"></code>
+    <script>
+      async function main() {
+        const codeEl = document.querySelector("#code");
+        const configEl = document.querySelector("#config");
+        const resultsEl = document.querySelector("#results");
+
+        codeEl.addEventListener("keyup", lint);
+        configEl.addEventListener("keyup", lint);
+
+        async function lint() {
+          console.log("linting!", codeEl.innerHTML);
+          const results = await stylelint(
+            codeEl.value,
+            JSON.parse(`[${configEl.value}]`)[0]
+          );
+
+          resultsEl.textContent = JSON.stringify(JSON.parse(results), null, 4);
+        }
+
+        lint();
+      }
+      main();
+    </script>
+  </body>
 </html>
