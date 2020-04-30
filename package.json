@@ -5,13 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle": "npm run bundle:node && npm run bundle:browser",
-    "bundle:browser": "npx browserify src/index.js -o dist/browser.js --standalone stylelint",
-    "bundle:node": "npx @zeit/ncc build src/index.js -o dist --stats-out dist/stats.json"
+    "bundle": "browserify src/index.js -o dist/browser.js --standalone stylelint"
   },
   "author": "m-allanson",
   "license": "MIT",
   "dependencies": {
+    "browserify": "^16.5.1",
     "postcss": "^7.0.27",
     "stylelint": "^13.3.3"
   }
