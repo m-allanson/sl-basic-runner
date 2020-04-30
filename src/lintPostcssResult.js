@@ -2,7 +2,9 @@ const assignDisabledRanges = require("stylelint/lib/assignDisabledRanges");
 const getOsEol = require("stylelint/lib/utils/getOsEol");
 const reportUnknownRuleNames = require("stylelint/lib/reportUnknownRuleNames");
 const rulesOrder = require("stylelint/lib/rules");
-const requireRule = require("stylelint/lib/requireRule");
+
+const requireRule = require("./requireRule");
+
 const _ = require("lodash");
 
 /** Functions below here are copy and pasted from stylelint without further modification */
