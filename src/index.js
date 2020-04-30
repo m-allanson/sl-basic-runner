@@ -2,6 +2,9 @@ const LazyResult = require("postcss/lib/lazy-result");
 const postcss = require("postcss");
 
 const normalizeRuleSettings = require("stylelint/lib/normalizeRuleSettings");
+const createStylelintResult = require("stylelint/lib/createStylelintResult");
+const jsonFormatter = require("stylelint/lib/formatters/jsonFormatter");
+
 const lintPostcssResult = require("./lintPostcssResult");
 
 const postcssProcessor = postcss();
@@ -41,9 +44,19 @@ async function lint(text, config) {
 
   const normalizedConfig = normalizeAllRuleSettings(config);
 
-  return lintPostcssResult({ _options: {} }, result, normalizedConfig).then(
-    () => result
-  );
+  await lintPostcssResult({ _options: {} }, result, normalizedConfig);
+
+  const formattedResult = await formatResult(result, config);
+  return formattedResult;
+}
+
+async function formatResult(result, config) {
+  const stylelintStub = {
+    getConfigForFile: () => Promise.resolve({ config }),
+  };
+  const res = await createStylelintResult(stylelintStub, result);
+  const formatted = jsonFormatter([res]);
+  return formatted;
 }
 
 // // Run normalizeRuleSettings on all rules in the config
