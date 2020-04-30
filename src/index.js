@@ -10,6 +10,7 @@ const lintPostcssResult = require("./lintPostcssResult");
 const postcssProcessor = postcss();
 
 // TODO:
+// enable alternate parsers
 // enable fix?
 // enable plugins?
 // enable disable ranges?
